@@ -38,8 +38,8 @@ def getSWPowers(params):
     
     # Problem matrix
     A = np.array([[1, -rSE, 0, 0],
-                  [-rSC, 1, 0, -(1 - CC * rSC) * (1 - CC * aSC)],
-                  [-(1 - CC * rSC) * (1 - CC * aSC), 0, 1, - rSC],
+                  [-rSC * CC, 1, 0, -(1 - CC * rSC) * (1 - CC * aSC)],
+                  [-(1 - CC * rSC) * (1 - CC * aSC), 0, 1, - rSC * CC],
                   [0, 0, -rSM, 1]])
     
     # Problem vector
