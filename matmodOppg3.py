@@ -1,15 +1,5 @@
-"""
-Two-layer (surface + atmosphere) radiative energy balance model.
-
-Shortwave (sw) fluxes between the sun, atmosphere, clouds and Earth's surface
-are found from a 4x4 linear system. The remaining steady-state energy balance
-for the surface temperature T_E and atmosphere temperature T_A (longwave
-radiation plus a non-radiative exchange (alpha + beta) * (T_E - T_A)) is a 2x2
-nonlinear system, solved with Newton's method using an analytic inverse Jacobian.
-
-Running the script prints the equilibrium temperatures (in Kelvin) with and
-without cloud cover (CC), and a central-difference estimate of dT/d(alpha).
-"""
+# Two-layer (surface + atmosphere) energy balance model, solved with Newton's method.
+# Prints equilibrium temperatures with and without clouds, and dT/d(alpha).
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -219,11 +209,8 @@ print("Without clouds: ", T)
 
 
 def centralDifferenceDerivative(params, param, eps):
-    """
-    Sensitivity of the equilibrium temperatures (T_E, T_A) to one parameter,
-    estimated with a central difference using relative step eps * params[param].
-    Note: params[param] is left at theta - deltaTheta on return.
-    """
+    # central difference of (T_E, T_A) wrt params[param]
+    # NB: leaves params[param] at theta - deltaTheta
     
     theta = params[param]
     
@@ -263,7 +250,6 @@ print(TDerivative)
 
 
 
-# Leftover experiments, kept as inactive strings:
 """
 parameters["CC"] == 0
 T = findTemperatureRoots(params, [290, 270]) 
