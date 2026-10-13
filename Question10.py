@@ -1,13 +1,29 @@
+"""
+One-dimensional (latitudinal) energy balance model, finite-difference version.
+
+With x = sin(latitude) in [0, 1], the steady-state temperature T(x) satisfies
+
+    D d/dx[(1 - x^2) dT/dx] - (Aout + Bout*T) + Q*S(x)*a(x, xs) = 0,
+
+where S(x) is the normalised insolation, a(x, xs) is the absorbed fraction of
+sunlight (co-albedo) with an ice line at x = xs, and D is the heat-transport
+(diffusion) coefficient. The operator on the left is discretised with central
+differences on N+1 nodes into the matrix Ah. The script then inspects the
+eigenvalues of Ah to judge stability; the steady-state solve and the
+temperature-vs-latitude plot are left commented out at the bottom.
+"""
 import numpy as np
 from scipy.optimize import minimize_scalar
 import matplotlib.pyplot as plt
 from scipy import linalg
 
 def a(x, xs):
+    """Absorbed fraction of sunlight: al equatorward of the ice line xs, au poleward, mean at x == xs."""
     au = 0.38
     al = 0.68
     return np.where(x==xs, (au+al)/2,np.where(x>xs, au, al))
 def S(x):
+    """Normalised annual-mean insolation, 1 + S2 * P2(x) (second Legendre polynomial)."""
     S2 = -0.477
     return 1+S2*(3*x**2-1)/2
 
@@ -21,10 +37,13 @@ def Q_optim(x):
 
 xs = 0.8
 
+# Uniform grid on x in [0, 1]
 N = 1000
 x = np.linspace(0, 1, N+1)
 h = 1/N
 
+# Tridiagonal matrix for d/dx[(1 - x^2) dT/dx] - (Bout/D) T, scaled by 2h^2.
+# First and last rows use symmetric ghost nodes at the boundaries (factor 2).
 # Upper diagonal
 Ah = np.diag([2*(1-x[1]**2)]     +    [1-x[i+1]**2 for i in range(1, N)], k=1)
 # Middle diagonal
@@ -41,7 +60,10 @@ Ah /= 2*h**2
 
 def analyze_stability(N, Ah, D=0.3, Bout=1.45, Ca=1.0):
     """
-    Analyze the stability of the system
+    Analyze the stability of the system by plotting the eigenvalues of Ah.
+
+    Only Ah is used in the computation; N is used for the plot title, and
+    D, Bout and Ca are currently unused.
     """
     A = Ah
     eigenvals = linalg.eigvals(A)
